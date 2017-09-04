@@ -1,0 +1,83 @@
+Kernel: Strength of visualization-python visuals tutorial
+Author: BuryBuryZymon
+
+Notes:
+1. Datasets
+	a. NYC taxi train-test (provided)
+	b. NYC OSRM dataset (fatest route, and second fatest route and path, trip duration information)
+	c. Weather data (precipitation, snowfall) since weather affects traffic, traffic affects travel time
+
+2. About Data
+1) log(trip_duration) like Gaussian; most are 1 to 60 mins; mostly in manhattan or in new york only
+
+2) pick and drop location are centered around 40-41 latitude, -74 to -73 longtitude
+
+3) Further narrow the location: 40.6 to 40.9 latitude and -74.05 to -73.70 longitude
+
+4) Vendor 1 and vendor 2 are different (vendor1 has two peaks in Jan and Feb)
+
+5) From heat map (in manhatten most of the trips are getting originated)
+
+6) the difference between average tiume taken by vendor 1 is ~250 seconds more than vendor 2
+
+7) remove zero passenger_count and negative times; vendor one has more number of larger trips than vendor two for passanger count 2 and 3
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+
+8) Time taken by Monday, Tuesday, Wednesday and Thursday are greater than rest of the days.
+
+9) Clustering (from california, from the sea, from very north) remove wrong data
+
+3. Model
+1) XGB model
+pca coordinates
+features:
+We will be using following features for training ['vendor_id', 'passenger_count', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'total_distance', 'total_travel_time', 'number_of_steps', 'pick_month', 'hour', 'week_of_year', 'day_of_year', 'day_of_week', 'hvsine_pick_drop', 'manhtn_pick_drop', 'bearing', 'label_pick', 'label_drop', 'centroid_pick_long', 'centroid_pick_lat', 'centroid_drop_long', 'centroid_drop_lat', 'hvsine_pick_cent_p', 'hvsine_drop_cent_d', 'hvsine_cent_p_cent_d', 'manhtn_pick_cent_p', 'manhtn_drop_cent_d', 'manhtn_cent_p_cent_d', 'bearing_pick_cent_p', 'bearing_drop_cent_p', 'bearing_cent_p_cent_d', 'speed_hvsn', 'speed_manhtn', 'pickup_pca0', 'pickup_pca1', 'dropoff_pca0', 'dropoff_pca1', 'store_and_fwd_flag_int'].
+
