@@ -11,5 +11,5 @@ Vendors (one kernel shows there is difference between vendor 1 and 2)
 Log 9/3/2017
 Add weather feature 
 Add PCA features from clusters
-Add left/right turn
-remove outliers (0 passenger counts, negative/long duration time, out of new york) 
+Add left/right turn: added
+remove outliers (0 passenger counts, negative/long duration time, out of new york): added

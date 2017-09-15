@@ -25,6 +25,21 @@ test = pd.read_csv('test.csv')
 # sample_submission = pd.read_csv('nyc-taxi-trip-duration/sample_submission.csv')
 os.chdir(cwd)
 
+# remove obvious outliers
+allLat  = np.array(list(train['pickup_latitude'])  + list(train['dropoff_latitude']))
+allLong = np.array(list(train['pickup_longitude']) + list(train['dropoff_longitude']))
+
+longLimits = [np.percentile(allLong, 0.3), np.percentile(allLong, 99.7)]
+latLimits  = [np.percentile(allLat , 0.3), np.percentile(allLat , 99.7)]
+durLimits  = [np.percentile(train['trip_duration'], 0.4), np.percentile(train['trip_duration'], 99.7)]
+
+train = train[(train['pickup_latitude']   >= latLimits[0] ) & (train['pickup_latitude']   <= latLimits[1]) ]
+train = train[(train['dropoff_latitude']  >= latLimits[0] ) & (train['dropoff_latitude']  <= latLimits[1]) ]
+train = train[(train['pickup_longitude']  >= longLimits[0]) & (train['pickup_longitude']  <= longLimits[1])]
+train = train[(train['dropoff_longitude'] >= longLimits[0]) & (train['dropoff_longitude'] <= longLimits[1])]
+train = train[(train['trip_duration']     >= durLimits[0] ) & (train['trip_duration']     <= durLimits[1]) ]
+train = train.reset_index(drop = True)
+
 # Convert datetime format
 train['pickup_datetime'] = pd.to_datetime(train.pickup_datetime)
 test['pickup_datetime'] = pd.to_datetime(test.pickup_datetime)
@@ -218,11 +233,21 @@ test['pickup_cluster_count'] = test[['pickup_datetime_group', 'pickup_cluster']]
 # OSRM features
 os.chdir(file_dir)
 fr1 = pd.read_csv('fastest_routes_train_part_1.csv',
-                  usecols=['id', 'total_distance', 'total_travel_time',  'number_of_steps'])
+                  usecols=['id', 'total_distance', 'total_travel_time',  'number_of_steps', 'step_direction'])
 fr2 = pd.read_csv('fastest_routes_train_part_2.csv',
-                  usecols=['id', 'total_distance', 'total_travel_time', 'number_of_steps'])
+                  usecols=['id', 'total_distance', 'total_travel_time', 'number_of_steps', 'step_direction'])
 test_street_info = pd.read_csv('fastest_routes_test.csv',
-                               usecols=['id', 'total_distance', 'total_travel_time', 'number_of_steps'])
+                               usecols=['id', 'total_distance', 'total_travel_time', 'number_of_steps', 'step_direction'])
+
+left_count = lambda x: x.split("|").count('left')
+right_count = lambda x: x.split("|").count('right')
+fr1['left_freq'] = fr1['step_direction'].apply(left_count)
+fr1['right_freq'] = fr1['step_direction'].apply(right_count)
+fr2['left_freq'] = fr2['step_direction'].apply(left_count)
+fr2['right_freq'] = fr2['step_direction'].apply(right_count)
+test_street_info['left_freq'] = test_street_info['step_direction'].apply(left_count)
+test_street_info['right_freq'] = test_street_info['step_direction'].apply(right_count)
+
 os.chdir(cwd)
 train_street_info = pd.concat((fr1, fr2))
 train = train.merge(train_street_info, how='left', on='id')
@@ -233,7 +258,7 @@ print(np.setdiff1d(train.columns, test.columns))
 do_not_use_for_training = ['id', 'log_trip_duration', 'pickup_datetime', 'dropoff_datetime', 'trip_duration',
                            'check_trip_duration', 'pickup_date', 'avg_speed_h', 'avg_speed_m', 'pickup_lat_bin',
                            'pickup_long_bin', 'center_lat_bin', 'center_long_bin', 'pickup_dt_bin',
-                           'pickup_datetime_group']
+                           'pickup_datetime_group', 'step_direction']
 feature_names = [f for f in train.columns if f not in do_not_use_for_training]
 print('We have %i features.' % len(feature_names))
 train[feature_names].count()
@@ -265,11 +290,11 @@ dvalid = xgb.DMatrix(Xv, label=yv)
 dtest = xgb.DMatrix(test[feature_names].values)
 watchlist = [(dtrain, 'train'), (dvalid, 'valid')]
 
-xgb_pars = {'min_child_weight': 10, 'eta': 0.05, 'colsample_bytree': 0.3, 'max_depth': 10,
+xgb_pars = {'min_child_weight': 10, 'eta': 0.03, 'colsample_bytree': 0.3, 'max_depth': 10,
             'subsample': 0.8, 'lambda': 2., 'nthread': 10, 'booster': 'gbtree', 'silent': 1,
             'eval_metric': 'rmse', 'objective': 'reg:linear'}
 
-model = xgb.train(xgb_pars, dtrain, 1000, watchlist, early_stopping_rounds=50,
+model = xgb.train(xgb_pars, dtrain, 20000, watchlist, early_stopping_rounds=50,
                   maximize=False, verbose_eval=10)
 
 ytest = model.predict(dtest)
